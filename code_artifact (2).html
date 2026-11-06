@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>일본의 주거 문화 & 와시쓰 탐험 체험관</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;600;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #2b221e;
+            color: #2d2522;
+            user-select: none;
+        }
+
+        /* Wood & Tatami UI Styles */
+        .wood-frame {
+            border: 6px solid #5c3a21;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .paper-bg {
+            background-color: #fdfaf3;
+            background-image: radial-gradient(#e5dbc9 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+
+        /* Hotspot Pulse */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(217, 119, 6, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(217, 119, 6, 0); }
+        }
+
+        .hotspot-pulse {
+            animation: pulse-ring 2s infinite;
+        }
+
+        .room-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-2 sm:p-4">
+
+    <!-- 메인 컨테이너 -->
+    <div class="w-full max-w-5xl bg-[#f7f4ea] rounded-2xl shadow-2xl overflow-hidden border-4 border-[#8c6d53] flex flex-col min-h-[680px]">
+        
+        <!-- 상단 내비게이션 바 (게임 시작 후에만 노출) -->
+        <header id="main-header" class="hidden bg-[#5c3a21] text-[#f7f4ea] p-3 sm:p-4 flex flex-wrap justify-between items-center border-b-4 border-[#3d2412]">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-house-chimney text-amber-400 text-xl sm:text-2xl"></i>
+                <h1 class="text-lg sm:text-xl font-bold tracking-wide">일본의 주거 문화 탐험</h1>
+            </div>
+            
+            <div class="flex items-center space-x-3 text-xs sm:text-sm mt-1 sm:mt-0">
+                <div class="bg-[#3d2412] px-3 py-1 rounded-full flex items-center space-x-1.5 border border-amber-600/40">
+                    <i class="fa-solid fa-stamp text-amber-400"></i>
+                    <span>탐험 완료: <strong id="stamp-count" class="text-amber-300">0</strong>/6</span>
+                </div>
+                <div class="bg-[#3d2412] px-3 py-1 rounded-full flex items-center space-x-1.5 border border-amber-600/40">
+                    <i class="fa-solid fa-coins text-amber-400"></i>
+                    <span>포인트: <strong id="score-display" class="text-amber-300">0</strong> P</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- [화면 1] 게임 시작 화면 (Start Screen) -->
+        <section id="screen-start" class="flex-1 paper-bg p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
+            <!-- 시각적 배경 스탬프 장식 -->
+            <div class="absolute -top-10 -left-10 text-amber-900/5 text-9xl font-black">和風</div>
+            <div class="absolute -bottom-10 -right-10 text-amber-900/5 text-9xl font-black">住宅</div>
+
+            <div class="z-10 max-w-2xl">
+                <div class="inline-block bg-amber-100 text-amber-900 border-2 border-amber-700 px-4 py-1 rounded-full text-sm font-bold mb-4 shadow-sm">
+                    🌸 일본 문화 체험 고등학교/중학교 교과 연계
+                </div>
+                
+                <h1 class="text-3xl sm:text-5xl font-black text-[#422512] mb-4 leading-tight">
+                    🏠 일본의 주거 문화 &<br><span class="text-amber-700">와시쓰(和室) 탐험 게임</span>
+                </h1>
+                
+                <p class="text-gray-700 text-base sm:text-lg mb-8 leading-relaxed">
+                    단독주택 LDK 구조부터 독립된 화장실, 베란다 풍경,<br class="hidden sm:block">
+                    현관 방문 예절과 와시쓰(전통 방)까지 방 안 구석구석을 체험해보세요!
+                </p>
+
+                <!-- 게임 특징 카드 3개 -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 text-left">
+                    <div class="bg-white p-3.5 rounded-xl border-2 border-amber-800/20 shadow-sm">
+                        <i class="fa-solid fa-map-location-dot text-amber-600 text-xl mb-1"></i>
+                        <h3 class="font-bold text-sm text-gray-800">1. 입체 주택 지도 탐험</h3>
+                        <p class="text-xs text-gray-600">구조와 명칭(LDK 등) 클릭 학습</p>
+                    </div>
+                    <div class="bg-white p-3.5 rounded-xl border-2 border-amber-800/20 shadow-sm">
+                        <i class="fa-solid fa-person-shelter text-amber-600 text-xl mb-1"></i>
+                        <h3 class="font-bold text-sm text-gray-800">2. 방문 예절 습득</h3>
+                        <p class="text-xs text-gray-600">신발 놓는 법, 외투 벗기 실습</p>
+                    </div>
+                    <div class="bg-white p-3.5 rounded-xl border-2 border-amber-800/20 shadow-sm">
+                        <i class="fa-solid fa-graduation-cap text-amber-600 text-xl mb-1"></i>
+                        <h3 class="font-bold text-sm text-gray-800">3. 주택 마스터 퀴즈</h3>
+                        <p class="text-xs text-gray-600">배운 내용 바탕 OX 및 선택형 퀴즈</p>
+                    </div>
+                </div>
+
+                <!-- 시작 버튼 -->
+                <button onclick="startGame()" class="bg-[#5c3a21] hover:bg-[#3d2412] text-amber-100 font-black text-xl px-10 py-4 rounded-2xl shadow-xl border-b-4 border-[#2b180b] transform active:translate-y-1 transition-all flex items-center justify-center space-x-3 mx-auto">
+                    <span>탐험 시작하기</span>
+                    <i class="fa-solid fa-circle-play text-amber-400"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- [화면 2] 주택 구조 탐험 맵 (Exploration Map) -->
+        <section id="screen-explore" class="hidden flex-1 p-3 sm:p-6 flex flex-col">
+            
+            <!-- 모드 전환 탭 -->
+            <div class="bg-[#e2d8c3] flex rounded-lg p-1 mb-4 border border-[#a8927a]">
+                <button id="tab-map" onclick="switchExploreSubTab('map')" class="flex-1 py-2 font-bold text-sm sm:text-base text-[#5c3a21] bg-white rounded-md shadow-sm">
+                    <i class="fa-solid fa-sitemap mr-1"></i> 전체 주택 평면도 (단독주택)
+                </button>
+                <button id="tab-types" onclick="switchExploreSubTab('types')" class="flex-1 py-2 font-bold text-sm sm:text-base text-gray-600 hover:text-[#5c3a21]">
+                    <i class="fa-solid fa-building mr-1"></i> 주택 형태 (맨션/아파트/단독)
+                </button>
+            </div>
+
+            <!-- 서브 1: 평면도 탐험 -->
+            <div id="sub-explore-map" class="flex-1 flex flex-col">
+                <div class="bg-amber-100 border-l-4 border-amber-600 p-2.5 rounded text-xs sm:text-sm text-amber-900 mb-3 flex items-center justify-between">
+                    <span><i class="fa-solid fa-hand-pointer text-amber-600 mr-1"></i> 구역(현관, 거실, 화장실, 와시쓰 등)을 클릭하여 주거 문화를 체험하세요!</span>
+                    <span class="font-bold text-amber-800">단독주택 1-2층 구조</span>
+                </div>
+
+                <!-- 평면도 인터랙티브 구역 (SVG Graphic) -->
+                <div class="relative w-full aspect-[16/9] bg-[#ebdcc2] rounded-xl overflow-hidden wood-frame shadow-inner flex items-center justify-center">
+                    
+                    <svg class="w-full h-full" viewBox="0 0 900 500" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 집 바깥 테두리 -->
+                        <rect x="50" y="40" width="800" height="420" fill="#fdfbf7" stroke="#5c3a21" stroke-width="8" rx="8" />
+                        
+                        <!-- 구역 구분을 위한 방 벽면 선들 -->
+                        <line x1="300" y1="40" x2="300" y2="460" stroke="#8c6d53" stroke-width="6" />
+                        <line x1="300" y1="260" x2="850" y2="260" stroke="#8c6d53" stroke-width="6" />
+                        <line x1="580" y1="260" x2="580" y2="460" stroke="#8c6d53" stroke-width="6" />
+                        <line x1="580" y1="40" x2="580" y2="260" stroke="#8c6d53" stroke-width="6" />
+
+                        <!-- Zone 1: 현관 & 방문 예절 (좌측 하단) -->
+                        <rect x="50" y="260" width="250" height="200" fill="#e8ded1" opacity="0.6" />
+                        <text x="175" y="340" font-size="20" font-weight="bold" fill="#5c3a21" text-anchor="middle">겐칸 (현관)</text>
+                        <text x="175" y="365" font-size="13" fill="#885e3c" text-anchor="middle">방문 예절 체험</text>
+
+                        <!-- Zone 2: 와시쓰 / 전통 방 (좌측 상단) -->
+                        <rect x="50" y="40" width="250" height="220" fill="#c2ba92" opacity="0.8" />
+                        <!-- 다다미 패턴 선 -->
+                        <line x1="50" y1="150" x2="300" y2="150" stroke="#2d4a27" stroke-width="3" />
+                        <line x1="175" y1="40" x2="175" y2="260" stroke="#2d4a27" stroke-width="3" />
+                        <text x="175" y="110" font-size="20" font-weight="bold" fill="#2d4a27" text-anchor="middle">와시쓰 (和室)</text>
+                        <text x="175" y="135" font-size="13" fill="#3d6335" text-anchor="middle">다다미, 도코노마 등</text>
+
+                        <!-- Zone 3: LDK / 거실 및 부엌 (우측 상단) -->
+                        <rect x="300" y="40" width="280" height="220" fill="#fcecd2" opacity="0.8" />
+                        <text x="440" y="130" font-size="22" font-weight="bold" fill="#784421" text-anchor="middle">LDK (거실/식당/부엌)</text>
+                        <text x="440" y="155" font-size="13" fill="#a05d30" text-anchor="middle">2DK, 3LDK 구조 약어</text>
+
+                        <!-- Zone 4: 욕실 & 화장실 분리 (우측 중간) -->
+                        <rect x="580" y="40" width="270" height="220" fill="#e0f2fe" opacity="0.8" />
+                        <text x="715" y="120" font-size="20" font-weight="bold" fill="#0369a1" text-anchor="middle">독립 욕실 & 화장실</text>
+                        <text x="715" y="145" font-size="13" fill="#0284c7" text-anchor="middle">변기/욕조 완전 분리 문화</text>
+
+                        <!-- Zone 5: 베란다 (우측 하단) -->
+                        <rect x="300" y="260" width="280" height="200" fill="#f0fdf4" opacity="0.8" />
+                        <text x="440" y="340" font-size="20" font-weight="bold" fill="#15803d" text-anchor="middle">베란다 (Balcony)</text>
+                        <text x="440" y="365" font-size="13" fill="#16a34a" text-anchor="middle">외부 창틀 없음/빨래건조</text>
+
+                        <!-- Zone 6: 2층 계단 / 개인 공간 (오른쪽 맨 아래) -->
+                        <rect x="580" y="260" width="270" height="200" fill="#fdf2f8" opacity="0.8" />
+                        <text x="715" y="340" font-size="20" font-weight="bold" fill="#be185d" text-anchor="middle">2층 (개인 침실)</text>
+                        <text x="715" y="365" font-size="13" fill="#db2777" text-anchor="middle">가족의 개인 공간</text>
+                    </svg>
+
+                    <!-- 각 영역별 인터랙티브 클릭 버튼 overlay -->
+                    <!-- 현관 -->
+                    <button onclick="openTopicModal('genkan')" class="hotspot-pulse absolute bottom-[18%] left-[12%] bg-amber-700 hover:bg-amber-600 text-white font-bold px-3 py-2 rounded-xl text-xs sm:text-sm shadow-lg flex items-center space-x-1 border-2 border-amber-200">
+                        <i class="fa-solid fa-shoe-prints"></i> <span>현관 & 방문 예절</span>
+                    </button>
+
+                    <!-- 와시쓰 -->
+                    <button onclick="openTopicModal('washitsu')" class="hotspot-pulse absolute top-[20%] left-[12%] bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-3 py-2 rounded-xl text-xs sm:text-sm shadow-lg flex items-center space-x-1 border-2 border-emerald-200">
+                        <i class="fa-solid fa-rug"></i> <span>와시쓰 전통 방</span>
+                    </button>
+
+                    <!-- LDK -->
+                    <button onclick="openTopicModal('ldk')" class="hotspot-pulse absolute top-[20%] left-[42%] bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-2 rounded-xl text-xs sm:text-sm shadow-lg flex items-center space-x-1 border-2 border-amber-100">
+                        <i class="fa-solid fa-utensils"></i> <span>LDK 구조</span>
+                    </button>
+
+                    <!-- 욕실/화장실 -->
+                    <button onclick="openTopicModal('bath')" class="hotspot-pulse absolute top-[20%] right-[8%] bg-sky-600 hover:bg-sky-500 text-white font-bold px-3 py-2 rounded-xl text-xs sm:text-sm shadow-lg flex items-center space-x-1 border-2 border-sky-100">
+                        <i class="fa-solid fa-bath"></i> <span>욕실 & 화장실</span>
+                    </button>
+
+                    <!-- 베란다 -->
+                    <button onclick="openTopicModal('balcony')" class="hotspot-pulse absolute bottom-[18%] left-[42%] bg-green-600 hover:bg-green-500 text-white font-bold px-3 py-2 rounded-xl text-xs sm:text-sm shadow-lg flex items-center space-x-1 border-2 border-green-100">
+                        <i class="fa-solid fa-sun"></i> <span>베란다</span>
+                    </button>
+
+                    <!-- 주택 형태 -->
+                    <button onclick="openTopicModal('types')" class="hotspot-pulse absolute bottom-[18%] right-[8%] bg-pink-600 hover:bg-pink-500 text-white font-bold px-3 py-2 rounded-xl text-xs sm:text-sm shadow-lg flex items-center space-x-1 border-2 border-pink-100">
+                        <i class="fa-solid fa-house"></i> <span>주택 형태 비교</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 서브 2: 주택 형태 (카드형 비교) -->
+            <div id="sub-explore-types" class="hidden flex-1 grid grid-cols-1 sm:grid-cols-3 gap-4 overflow-y-auto p-1">
+                <div onclick="openTopicModal('mansion')" class="room-card bg-white p-5 rounded-xl border-2 border-amber-800/20 shadow-md cursor-pointer transition-all">
+                    <div class="text-3xl text-amber-700 mb-2"><i class="fa-solid fa-building-user"></i></div>
+                    <h3 class="font-bold text-lg text-amber-900">맨션 (マンション)</h3>
+                    <p class="text-xs text-amber-700 font-semibold mb-2">Mansion</p>
+                    <p class="text-sm text-gray-700 leading-relaxed">
+                        철근 콘크리트 구조로 지어진 고층 공동주택으로, 우리나라의 일반적인 아파트에 해당합니다.
+                    </p>
+                </div>
+
+                <div onclick="openTopicModal('apart')" class="room-card bg-white p-5 rounded-xl border-2 border-amber-800/20 shadow-md cursor-pointer transition-all">
+                    <div class="text-3xl text-amber-700 mb-2"><i class="fa-solid fa-city"></i></div>
+                    <h3 class="font-bold text-lg text-amber-900">아파트 (アパート)</h3>
+                    <p class="text-xs text-amber-700 font-semibold mb-2">Apartment</p>
+                    <p class="text-sm text-gray-700 leading-relaxed">
+                        목조나 경량 철골 구조로 지어진 2층 정도의 다세대 공동주택을 의미합니다.
+                    </p>
+                </div>
+
+                <div onclick="openTopicModal('ikkodate')" class="room-card bg-white p-5 rounded-xl border-2 border-amber-800/20 shadow-md cursor-pointer transition-all">
+                    <div class="text-3xl text-amber-700 mb-2"><i class="fa-solid fa-house-chimney-window"></i></div>
+                    <h3 class="font-bold text-lg text-amber-900">단독 주택 (いっこだて)</h3>
+                    <p class="text-xs text-amber-700 font-semibold mb-2">Ikkodate</p>
+                    <p class="text-sm text-gray-700 leading-relaxed">
+                        일본인이 가장 선호하는 주거 형태로, 주로 1층은 공용 공간(LDK), 2층은 개인 방으로 구성된 목조 주택입니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 하단 퀴즈 모드 전환 버튼 -->
+            <div class="mt-4 pt-3 border-t border-amber-800/20 flex justify-between items-center">
+                <span class="text-xs sm:text-sm text-amber-900 font-medium">모든 구역을 하나씩 클릭해 스탬프를 모아보세요!</span>
+                <button onclick="switchMode('quiz')" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition-all flex items-center space-x-2 text-sm sm:text-base">
+                    <span>주택 마스터 퀴즈 도전</span>
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- [화면 3] 퀴즈 도전 화면 (Quiz Challenge) -->
+        <section id="screen-quiz" class="hidden flex-1 p-4 sm:p-8 flex flex-col items-center justify-center">
+            <div class="w-full max-w-2xl bg-white/95 rounded-2xl border-4 border-[#5c3a21] p-6 sm:p-8 shadow-xl">
+                
+                <div class="flex justify-between items-center mb-4 border-b-2 border-amber-800/20 pb-3">
+                    <span class="text-xs font-bold text-amber-800 uppercase tracking-widest"><i class="fa-solid fa-award"></i> Japanese Housing Culture Quiz</span>
+                    <span id="quiz-step" class="bg-amber-800 text-amber-100 text-xs font-bold px-3 py-1 rounded-full">문제 1 / 5</span>
+                </div>
+
+                <!-- 질문 -->
+                <h3 id="quiz-question-text" class="text-xl sm:text-2xl font-bold text-[#3d2412] mb-6 leading-relaxed">
+                    질문 내용이 여기에 들어갑니다.
+                </h3>
+
+                <!-- 보기 버튼 목록 -->
+                <div id="quiz-option-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                    <!-- Dynamic Options -->
+                </div>
+
+                <!-- 해설 상자 -->
+                <div id="quiz-explanation-box" class="hidden p-4 rounded-xl text-sm sm:text-base font-semibold mb-4 leading-relaxed">
+                </div>
+
+                <!-- 다음 문제 버튼 -->
+                <button id="btn-next-question" onclick="nextQuizStep()" class="hidden w-full bg-[#5c3a21] hover:bg-[#3d2412] text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-center">
+                    다음 문제로 이동 <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- [화면 4] 게임 클리어 / 결과 화면 (Clear Screen) -->
+        <section id="screen-clear" class="hidden flex-1 paper-bg p-8 flex flex-col items-center justify-center text-center">
+            <div class="w-full max-w-lg bg-white p-8 rounded-2xl border-4 border-[#5c3a21] shadow-2xl">
+                <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 border-2 border-amber-500 shadow-md">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                
+                <h2 class="text-3xl font-black text-[#3d2412] mb-2">축하합니다!</h2>
+                <p class="text-gray-700 mb-6 font-medium">일본 주거 문화 탐험을 멋지게 마쳤습니다.</p>
+
+                <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-6 space-y-2">
+                    <div class="text-sm text-amber-900">획득한 최종 문화 포인트</div>
+                    <div id="final-score" class="text-4xl font-black text-amber-600">100 P</div>
+                    <p class="text-xs text-amber-700 pt-1">선생님과 함께 와시쓰 예절과 주택 구조를 완벽히 마스터했어요!</p>
+                </div>
+
+                <button onclick="startGame()" class="w-full bg-[#5c3a21] hover:bg-[#3d2412] text-amber-100 font-bold py-3.5 rounded-xl shadow-md transition-all">
+                    처음부터 다시 탐험하기
+                </button>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- 주거 문화 세부 학습 모달 (Modal Popup) -->
+    <div id="topic-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#fdfbf7] border-4 border-[#5c3a21] rounded-2xl w-full max-w-xl p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
+            
+            <button onclick="closeTopicModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- 헤더 정보 -->
+            <div class="flex items-center space-x-3 mb-4">
+                <div id="modal-badge-icon" class="w-12 h-12 rounded-xl bg-amber-100 text-amber-800 border-2 border-amber-600 flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-house"></i>
+                </div>
+                <div>
+                    <h2 id="modal-topic-title" class="text-2xl font-bold text-[#3d2412]">주제 제목</h2>
+                    <p id="modal-topic-sub" class="text-xs font-bold text-amber-800">일본어 표현 & 핵심 정보</p>
+                </div>
+            </div>
+
+            <!-- 핵심 설명 내용 -->
+            <div id="modal-topic-content" class="bg-amber-50/70 p-4 rounded-xl border border-amber-200 text-gray-800 text-sm sm:text-base leading-relaxed space-y-3 mb-4">
+                <!-- 내용 동적 삽입 -->
+            </div>
+
+            <!-- 교과서 퀴즈 팁 -->
+            <div class="bg-amber-100/80 border-l-4 border-amber-600 p-3 rounded-lg text-xs sm:text-sm text-amber-900 mb-6">
+                <span class="font-bold block mb-1"><i class="fa-solid fa-lightbulb text-amber-600 mr-1"></i> 교과서 핵심 포인트</span>
+                <span id="modal-topic-tip">교과서 시험에 자주 나오는 핵심 구절입니다.</span>
+            </div>
+
+            <button onclick="closeTopicModal()" class="w-full bg-[#5c3a21] hover:bg-[#3d2412] text-amber-100 font-bold py-3 rounded-xl shadow-md transition-all">
+                확인 및 스탬프 찍기
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Game Logic -->
+    <script>
+        // 탐험 데이터베이스 (교과서 내용 기반)
+        const topicsData = {
+            genkan: {
+                title: "현관(玄関) & 방문 예절",
+                sub: "げんかん (Genkan) / 訪問マナー",
+                icon: "fa-shoe-prints",
+                stampKey: "genkan",
+                content: `
+                    <p><strong>1. 외투 벗기:</strong> 집 문 안으로 들어가기 전에 벨을 누르기 전 미리 외투를 벗어두는 것이 예의입니다.</p>
+                    <p><strong>2. 신발 정리:</strong> 현관에서 신발을 벗고 들어선 후, 신발을 <strong>현관 문쪽(바깥쪽)으로 돌려놓는 것</strong>이 올바른 예절입니다.</p>
+                    <p><strong>3. 선물 전달:</strong> 방문 시 봉투나 보자기, 작은 선물을 지참하며, 인사 후 방에 들어서서 양손으로 전달합니다.</p>
+                `,
+                tip: "신발을 벗은 후 신발의 앞쪽이 현관 바깥 쪽을 향하도록 돌려놓는 것이 대표적인 시험 출제 포인트입니다!"
+            },
+            washitsu: {
+                title: "와시쓰 (和室 - 일본 전통 방)",
+                sub: "わしつ (Washitsu)",
+                icon: "fa-rug",
+                stampKey: "washitsu",
+                content: `
+                    <p><strong>• 다다미(たたみ):</strong> 짚으로 만든 바닥재. 다다미 장수로 방의 크기를 잽니다.</p>
+                    <p><strong>• 도코노마(とこのま):</strong> 족자나 꽃병을 장식하여 손님을 정성껏 맞이하는 높여진 공간입니다.</p>
+                    <p><strong>• 오시이레(おしいれ):</strong> 이불과 짐을 넣는 2단 붙박이장입니다.</p>
+                    <p><strong>• 쇼지(しょうじ):</strong> 빛이 통하는 얇은 종이 미닫이문입니다.</p>
+                    <p><strong>• 고타쓰(こたつ):</strong> 이불을 덮어쓰는 대표적 난방 기구입니다.</p>
+                `,
+                tip: "다다미의 테두리(천 부분)나 문턱, 방석을 밟지 않는 것이 중요한 와시쓰 예절입니다!"
+            },
+            ldk: {
+                title: "주택 구조 약어 (LDK)",
+                sub: "L = Living, D = Dining, K = Kitchen",
+                icon: "fa-utensils",
+                stampKey: "ldk",
+                content: `
+                    <p>일본의 집 구조를 표기할 때는 <strong>숫자 + LDK</strong> 형태를 사용합니다.</p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>L (Living):</strong> 거실 공간</li>
+                        <li><strong>D (Dining):</strong> 식사 공간</li>
+                        <li><strong>K (Kitchen):</strong> 부엌 공간</li>
+                    </ul>
+                    <p class="pt-2">예: <strong>3LDK</strong> = 방 3개 + 거실 + 식당 + 부엌 / <strong>2DK</strong> = 방 2개 + 식당 + 부엌</p>
+                `,
+                tip: "맨 앞에 오는 숫자는 '방의 개수'를 나타냅니다!"
+            },
+            bath: {
+                title: "독립된 욕실과 화장실",
+                sub: "風呂 (욕실) & トイレ (화장실)",
+                icon: "fa-bath",
+                stampKey: "bath",
+                content: `
+                    <p>일본 가정집은 <strong>욕실과 화장실이 서로 분리</strong>되어 있는 경우가 많습니다.</p>
+                    <p>• <strong>화장실:</strong> 변기만 독립된 작은 방 형태로 존재합니다.</p>
+                    <p>• <strong>욕실:</strong> 몸을 담글 수 있는 깊은 욕조(오프로)가 설치되어 있어 하루의 피로를 푸는 목욕 문화가 발달했습니다.</p>
+                `,
+                tip: "일본의 주택에서는 화장실과 욕실이 한 공간에 붙어있지 않고 따로 분리되어 있는 경우가 대부분입니다."
+            },
+            balcony: {
+                title: "베란다 (ベランダ)",
+                sub: "Balcony Culture",
+                icon: "fa-sun",
+                stampKey: "balcony",
+                content: `
+                    <p>일본은 지진, 태풍 등의 재해 예방 및 습기 배출을 위해 대부분의 집에 <strong>외부 창틀이 없는 베란다</strong>가 있습니다.</p>
+                    <p>화창한 날 베란다에 빨래나 두꺼운 이불을 바깥 햇빛에 넓게 널어 둔 풍경을 흔히 볼 수 있습니다.</p>
+                `,
+                tip: "일본 베란다는 외부 창문으로 막혀있지 않고 개방되어 있어 이불이나 빨래를 말리기에 적합합니다."
+            },
+            types: {
+                title: "일본의 주택 형태",
+                sub: "Mansion, Apartment, Ikkodate",
+                icon: "fa-house",
+                stampKey: "types",
+                content: `
+                    <p><strong>1. 맨션(マンション):</strong> 철근 콘크리트 구조의 고층 아파트입니다.</p>
+                    <p><strong>2. 아파트(アパート):</strong> 목조나 경량 철골 구조의 2층 다세대 주택입니다.</p>
+                    <p><strong>3. 단독 주택(いっこだて):</strong> 일본인이 가장 선호하며, 1층 공용 공간, 2층 개인 방으로 된 목조 건물입니다.</p>
+                `,
+                tip: "우리나라의 '아파트'는 일본에서 '맨션'이라 부르며, 일본의 '아파트'는 2층 다세대 목조 주택을 뜻합니다."
+            },
+            mansion: {
+                title: "맨션 (マンション)",
+                sub: "철근 콘크리트 고층 주택",
+                icon: "fa-building-user",
+                stampKey: "types",
+                content: "<p>우리나라의 일반적인 아파트에 해당하며, 방음과 내진 설계가 잘 되어 있는 고급 공동주택입니다.</p>",
+                tip: "한국의 아파트 = 일본의 맨션!"
+            },
+            apart: {
+                title: "아파트 (アパート)",
+                sub: "2층 정도의 다세대 목조 주택",
+                icon: "fa-city",
+                stampKey: "types",
+                content: "<p>목조나 경량 철골로 지어진 2층 규모의 공동주택으로 대학생이나 사회 초년생들이 많이 거주합니다.</p>",
+                tip: "한국의 빌라/원룸 건물과 유사합니다."
+            },
+            ikkodate: {
+                title: "단독 주택 (いっこだて)",
+                sub: "독채 목조 주택",
+                icon: "fa-house-chimney-window",
+                stampKey: "types",
+                content: "<p>일본인들이 가장 선호하는 형태입니다. 마당이나 주차장이 딸려 있고 1층은 LDK, 2층은 침실로 구분됩니다.</p>",
+                tip: "고온다습한 기후와 지진에 대비해 목조로 많이 지어집니다."
+            }
+        };
+
+        // 퀴즈 데이터베이스 (교과서 수록 퀴즈 포함)
+        const quizList = [
+            {
+                q: "일본의 단독주택 구조 표기 중 '3LDK'에서 숫자 '3'이 의미하는 것은 무엇일까요?",
+                options: ["욕실 3개", "방 3개", "거실 3개", "층수 3층"],
+                ans: 1,
+                exp: "정답! 맨 앞의 숫자는 '독립된 방의 개수'를 의미합니다. (3LDK = 방 3개 + 거실 + 식당 + 부엌)"
+            },
+            {
+                q: "일본 가정을 방문하여 현관에서 신발을 벗을 때 올바른 예절은?",
+                options: [
+                    "신발의 앞쪽이 집 안쪽을 향하도록 놓는다.",
+                    "신발의 앞쪽이 현관 바깥쪽(문)을 향하도록 돌려놓는다.",
+                    "신발을 아무렇게나 던져둔다.",
+                    "신발을 벗자마자 양말까지 현관에서 벗는다."
+                ],
+                ans: 1,
+                exp: "정답! 신발을 벗고 올라선 뒤, 신발 앞쪽이 문 바깥을 향하도록 돌려놓는 것이 올바른 방문 예절입니다."
+            },
+            {
+                q: "한국의 일반적인 '아파트'에 해당하는 철근 콘크리트 구조의 고층 공동주택을 일본에서는 뭐라고 부를까요?",
+                options: ["아파트 (アパート)", "맨션 (マンション)", "잇코다테 (いっこだて)", "와시쓰 (わしつ)"],
+                ans: 1,
+                exp: "정답! 우리나라의 아파트에 해당하는 건물은 일본에서 '맨션(Mansion)'이라고 부릅니다."
+            },
+            {
+                q: "일본 주택의 특징 중 '욕실과 화장실'에 대한 설명으로 옳은 것은?",
+                options: [
+                    "대부분 욕실과 화장실이 한 공간에 들어있다.",
+                    "화장실과 욕실이 분리되어 독립된 공간으로 있는 경우가 많다.",
+                    "일본 집에는 욕조가 전혀 없다.",
+                    "화장실은 항상 베란다에 설치된다."
+                ],
+                ans: 1,
+                exp: "정답! 일본은 변기만 있는 화장실과 몸을 담그는 욕실이 독립되어 구분된 주택 구조가 많습니다."
+            },
+            {
+                q: "와시쓰(전통 방)에 들어가 앉거나 걸어 다닐 때 지켜야 할 예절은?",
+                options: [
+                    "다다미 테두리(천 부분)나 문턱을 밟지 않는다.",
+                    "도코노마 위에 발을 올려놓고 쉰다.",
+                    "쇼지(종이문)를 손가락으로 뚫어본다.",
+                    "고타쓰 이불 속에 들어가 잠을 잔다."
+                ],
+                ans: 0,
+                exp: "정답! 다다미의 테두리나 문턱에는 가문의 문양이 있거나 손상될 수 있어 밟지 않는 것이 예의입니다."
+            }
+        ];
+
+        // 게임 변수
+        let collectedStamps = new Set();
+        let userScore = 0;
+        let currentQuizIdx = 0;
+        let selectedOption = null;
+
+        // 게임 시작
+        function startGame() {
+            collectedStamps.clear();
+            userScore = 0;
+            currentQuizIdx = 0;
+
+            document.getElementById('stamp-count').innerText = "0";
+            document.getElementById('score-display').innerText = "0";
+
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-clear').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.add('hidden');
+            
+            document.getElementById('main-header').classList.remove('hidden');
+            document.getElementById('screen-explore').classList.remove('hidden');
+
+            switchExploreSubTab('map');
+        }
+
+        // 서브 탭 전환 (평면도 vs 주택 형태)
+        function switchExploreSubTab(type) {
+            const mapBtn = document.getElementById('tab-map');
+            const typesBtn = document.getElementById('tab-types');
+            const mapSub = document.getElementById('sub-explore-map');
+            const typesSub = document.getElementById('sub-explore-types');
+
+            if (type === 'map') {
+                mapSub.classList.remove('hidden');
+                typesSub.classList.add('hidden');
+                mapBtn.className = "flex-1 py-2 font-bold text-sm sm:text-base text-[#5c3a21] bg-white rounded-md shadow-sm";
+                typesBtn.className = "flex-1 py-2 font-bold text-sm sm:text-base text-gray-600 hover:text-[#5c3a21]";
+            } else {
+                mapSub.classList.add('hidden');
+                typesSub.classList.remove('hidden');
+                mapBtn.className = "flex-1 py-2 font-bold text-sm sm:text-base text-gray-600 hover:text-[#5c3a21]";
+                typesBtn.className = "flex-1 py-2 font-bold text-sm sm:text-base text-[#5c3a21] bg-white rounded-md shadow-sm";
+            }
+        }
+
+        // 주제 모달 열기
+        function openTopicModal(key) {
+            const item = topicsData[key];
+            if (!item) return;
+
+            document.getElementById('modal-topic-title').innerText = item.title;
+            document.getElementById('modal-topic-sub').innerText = item.sub;
+            document.getElementById('modal-topic-content').innerHTML = item.content;
+            document.getElementById('modal-topic-tip').innerText = item.tip;
+            document.getElementById('modal-badge-icon').innerHTML = `<i class="fa-solid ${item.icon}"></i>`;
+
+            // 스탬프 및 점수 처리
+            if (!collectedStamps.has(item.stampKey)) {
+                collectedStamps.add(item.stampKey);
+                userScore += 10;
+                document.getElementById('stamp-count').innerText = collectedStamps.size;
+                document.getElementById('score-display').innerText = userScore;
+            }
+
+            document.getElementById('topic-modal').classList.remove('hidden');
+        }
+
+        function closeTopicModal() {
+            document.getElementById('topic-modal').classList.add('hidden');
+        }
+
+        // 화면 모드 전환 (탐험 -> 퀴즈)
+        function switchMode(mode) {
+            if (mode === 'quiz') {
+                document.getElementById('screen-explore').classList.add('hidden');
+                document.getElementById('screen-quiz').classList.remove('hidden');
+                currentQuizIdx = 0;
+                loadQuiz();
+            }
+        }
+
+        // 퀴즈 불러오기
+        function loadQuiz() {
+            const q = quizList[currentQuizIdx];
+            document.getElementById('quiz-step').innerText = `문제 ${currentQuizIdx + 1} / ${quizList.length}`;
+            document.getElementById('quiz-question-text').innerText = `Q. ${q.q}`;
+
+            const container = document.getElementById('quiz-option-list');
+            container.innerHTML = '';
+
+            document.getElementById('quiz-explanation-box').classList.add('hidden');
+            document.getElementById('btn-next-question').classList.add('hidden');
+            selectedOption = null;
+
+            q.options.forEach((optText, i) => {
+                const btn = document.createElement('button');
+                btn.className = "p-4 text-left font-semibold rounded-xl border-2 border-amber-800/30 hover:border-amber-800 hover:bg-amber-50 text-gray-800 transition-all flex items-center justify-between";
+                btn.innerHTML = `<span>${i + 1}. ${optText}</span> <i class="fa-regular fa-circle text-gray-300"></i>`;
+                btn.onclick = () => submitAnswer(i, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        // 답안 제출
+        function submitAnswer(idx, btnEl) {
+            if (selectedOption !== null) return;
+            selectedOption = idx;
+
+            const q = quizList[currentQuizIdx];
+            const expBox = document.getElementById('quiz-explanation-box');
+            const isRight = (idx === q.ans);
+
+            const options = document.getElementById('quiz-option-list').children;
+            for (let i = 0; i < options.length; i++) {
+                if (i === q.ans) {
+                    options[i].className = "p-4 text-left font-bold rounded-xl border-2 border-emerald-600 bg-emerald-50 text-emerald-900 flex items-center justify-between";
+                    options[i].querySelector('i').className = "fa-solid fa-circle-check text-emerald-600";
+                } else if (i === idx && !isRight) {
+                    options[i].className = "p-4 text-left font-bold rounded-xl border-2 border-rose-500 bg-rose-50 text-rose-900 flex items-center justify-between";
+                    options[i].querySelector('i').className = "fa-solid fa-circle-xmark text-rose-600";
+                } else {
+                    options[i].className = "p-4 text-left font-semibold rounded-xl border border-gray-200 text-gray-400 opacity-60";
+                }
+            }
+
+            expBox.classList.remove('hidden');
+            if (isRight) {
+                expBox.className = "p-4 rounded-xl text-sm sm:text-base font-semibold mb-4 bg-emerald-100 text-emerald-900 border-l-4 border-emerald-600";
+                expBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> ${q.exp}`;
+                userScore += 10;
+                document.getElementById('score-display').innerText = userScore;
+            } else {
+                expBox.className = "p-4 rounded-xl text-sm sm:text-base font-semibold mb-4 bg-rose-100 text-rose-900 border-l-4 border-rose-600";
+                expBox.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 mr-1.5"></i> 아쉽네요! 정답은 ${q.ans + 1}번입니다.<br><span class="text-xs text-rose-800 mt-1 block">${q.exp}</span>`;
+            }
+
+            document.getElementById('btn-next-question').classList.remove('hidden');
+        }
+
+        // 다음 퀴즈
+        function nextQuizStep() {
+            currentQuizIdx++;
+            if (currentQuizIdx < quizList.length) {
+                loadQuiz();
+            } else {
+                // 게임 완료 화면
+                document.getElementById('screen-quiz').classList.add('hidden');
+                document.getElementById('main-header').classList.add('hidden');
+                document.getElementById('screen-clear').classList.remove('hidden');
+                document.getElementById('final-score').innerText = `${userScore} P`;
+            }
+        }
+    </script>
+</body>
+</html>
